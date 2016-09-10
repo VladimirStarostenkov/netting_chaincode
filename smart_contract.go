@@ -8,24 +8,36 @@ import (
 	"github.com/VladimirStarostenkov/netting"
 )
 
-type smartContract struct {
-	netting.NettingTable
-	storeKey string
+const storeKey string = "NettingTable"
+
+var invokes map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) =
+	map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) {
+	"AddClaim":(smartContract).invoke_AddClaim,
+	"AddCounterParty":(smartContract).invoke_AddCounterParty,
+	"RunNetting":(smartContract).invoke_RunNetting,
+}
+var queries map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) =
+	map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) {
+	"Stats":(smartContract).query_Stats,
+	"Claims":(smartContract).query_Claims,
 }
 
-func (this *smartContract) init(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+type smartContract struct {
+}
+
+func initSmartContract(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("init called with args: %s\n", args)
 
-	this.NettingTable.Init()
-	this.storeKey = "NettingTable"
+	nettingTable := netting.NettingTable{}
+	nettingTable.Init()
 
-	if err := this.save(stub); err != nil {
+	if err := save(&nettingTable, stub); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 // args: From int, To int, Value float
-func (this *smartContract) invokeAddClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (smartContract) invoke_AddClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	message := fmt.Sprintf("invokeAddClaim called with args: %s\n", args)
 	log.Debugf(message)
 
@@ -56,62 +68,62 @@ func (this *smartContract) invokeAddClaim(stub shim.ChaincodeStubInterface, args
 	}
 
 	// Load existing data
-	err = this.load(stub)
+	nettingTable, err := load(stub)
 	checkCriticalError(err)
 
-	this.NettingTable.AddClaim(from, to, value)
+	nettingTable.AddClaim(from, to, value)
 
 	// Save new data
-	err = this.save(stub)
+	err = save(nettingTable, stub)
 	checkCriticalError(err)
 
 	return nil, nil
 }
 // args: -
-func (this *smartContract) invokeAddNode(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (smartContract) invoke_AddCounterParty(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("invokeAddNode called with args: %s\n", args)
 
 	// Load existing data
-	err := this.load(stub)
+	nettingTable, err := load(stub)
 	checkCriticalError(err)
 
-	_ = this.NettingTable.AddCounterParty()
+	_ = nettingTable.AddCounterParty()
 
 	// Save new data
-	err = this.save(stub)
+	err = save(nettingTable, stub)
 	checkCriticalError(err)
 
 	return nil, nil
 }
 // args: -
-func (this *smartContract) invokeRunNetting(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (smartContract) invoke_RunNetting(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("invokeRunNetting called with args: %s\n", args)
 
 	// Load existing data
-	err := this.load(stub)
+	nettingTable, err := load(stub)
 	checkCriticalError(err)
 
 	// Run netting algorithm
-	this.NettingTable.Optimize()
+	nettingTable.Optimize()
 
 	// Save new data
-	err = this.save(stub)
+	err = save(nettingTable, stub)
 	checkCriticalError(err)
 
 	return nil, nil
 }
 // args: -
-func (this *smartContract) queryStats(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (smartContract) query_Stats(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("queryStats called with args: %s\n", args)
 
 	// Load existing data
-	err := this.load(stub)
+	nettingTable, err := load(stub)
 	checkCriticalError(err)
 
-	return this.GetStats(), nil
+	return nettingTable.GetStats(), nil
 }
 // args: CounterPartyId int
-func (this *smartContract) queryClaims(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (smartContract) query_Claims(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	message := fmt.Sprintf("queryClaims called with args: %s\n", args)
 	log.Debugf(message)
 
@@ -127,23 +139,23 @@ func (this *smartContract) queryClaims(stub shim.ChaincodeStubInterface, args []
 	}
 
 	// Load existing data
-	err = this.load(stub)
+	nettingTable, err := load(stub)
 	checkCriticalError(err)
 
-	return this.NettingTable.GetClaims(counterPartyId), nil
+	return nettingTable.GetClaims(counterPartyId), nil
 }
 
-func (this *smartContract) save(stub shim.ChaincodeStubInterface) (error) {
+func save(this *netting.NettingTable, stub shim.ChaincodeStubInterface) (error) {
 	log.Debugf("Saving...\n")
 
 	// Data to Bytes
-	bytes, err := this.NettingTable.ToBytes()
+	bytes, err := this.ToBytes()
 	if err != nil {
 		log.Errorf("this.netting.ToBytes() error: %s", err.Error())
 		return err
 	}
 	// Save Bytes
-	err = stub.PutState(this.storeKey, bytes)
+	err = stub.PutState(storeKey, bytes)
 	if err != nil {
 		log.Errorf("stub.PutState(this.key, bytes) error: %s", err.Error())
 		return err
@@ -153,21 +165,21 @@ func (this *smartContract) save(stub shim.ChaincodeStubInterface) (error) {
 	return nil
 }
 
-func (this *smartContract) load(stub shim.ChaincodeStubInterface) (error) {
+func load(stub shim.ChaincodeStubInterface) (*netting.NettingTable, error) {
 	log.Debugf("Loading...\n")
 
-	bytes, err := stub.GetState(this.storeKey)
+	bytes, err := stub.GetState(storeKey)
 	if err != nil {
-		log.Errorf("stub.GetState(this.storeKey) error: %s", err.Error())
-		return err
+		log.Errorf("stub.GetState(storeKey) error: %s", err.Error())
+		return nil, err
 	}
 
-	this.NettingTable = netting.NettingTable{}
-	err = this.NettingTable.InitFromBytes(bytes)
+	result := netting.NettingTable{}
+	err = result.InitFromBytes(bytes)
 	if err != nil {
 		log.Errorf("this.NettingTable.InitFromBytes(bytes) error: %s", err.Error())
-		return err
+		return nil, err
 	}
 
-	return err
+	return &result, nil
 }
