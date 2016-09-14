@@ -15,6 +15,7 @@ var invokes map[string]func(smartContract, shim.ChaincodeStubInterface, []string
 		"AddClaim":(smartContract).invoke_AddClaim,
 		"AddCounterParty":(smartContract).invoke_AddCounterParty,
 		"RunNetting":(smartContract).invoke_RunNetting,
+		"Clear":(smartContract).invoke_Clear,
 }
 
 var queries map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) =
@@ -113,6 +114,10 @@ func (smartContract) invoke_RunNetting(stub shim.ChaincodeStubInterface, args []
 	checkCriticalError(err)
 
 	return nil, nil
+}
+// args: -
+func (smartContract) invoke_Clear(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	return initSmartContract(stub, args)
 }
 // args: -
 func (smartContract) query_Stats(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
