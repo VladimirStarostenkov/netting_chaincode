@@ -1,4 +1,4 @@
-package main
+package chaincode
 
 import (
 	"fmt"
@@ -12,14 +12,16 @@ const storeKey string = "NettingTable"
 
 var invokes map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) =
 	map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) {
-	"AddClaim":(smartContract).invoke_AddClaim,
-	"AddCounterParty":(smartContract).invoke_AddCounterParty,
-	"RunNetting":(smartContract).invoke_RunNetting,
+		"AddClaim":(smartContract).invoke_AddClaim,
+		"AddCounterParty":(smartContract).invoke_AddCounterParty,
+		"RunNetting":(smartContract).invoke_RunNetting,
 }
+
 var queries map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) =
 	map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) {
-	"Stats":(smartContract).query_Stats,
-	"Claims":(smartContract).query_Claims,
+		"Stats":(smartContract).query_Stats,
+		"Graph":(smartContract).query_Graph,
+		"Claims":(smartContract).query_Claims,
 }
 
 type smartContract struct {
@@ -121,6 +123,22 @@ func (smartContract) query_Stats(stub shim.ChaincodeStubInterface, args []string
 	checkCriticalError(err)
 
 	return nettingTable.GetStats(), nil
+}
+// args: -
+func (smartContract) query_Graph(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	log.Debugf("queryGraph called with args: %s\n", args)
+
+	// Load existing data
+	nettingTable, err := load(stub)
+	checkCriticalError(err)
+
+	bts, err := nettingTable.ToBytes()
+	if err != nil {
+		log.Errorf("nettingTable.ToBytes() error: \n", err.Error())
+		return nil, err
+	}
+
+	return bts, nil
 }
 // args: CounterPartyId int
 func (smartContract) query_Claims(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
