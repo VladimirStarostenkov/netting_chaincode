@@ -1,0 +1,127 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "DTlkq5XhpZgzzcKYvZay6HGiXtg=",
+			"path": "github.com/VladimirStarostenkov/netting",
+			"revision": "2598059572c1dc92774c5f04fdd0c8ae9b4f43d1",
+			"revisionTime": "2016-09-14T12:14:40Z"
+		},
+		{
+			"checksumSHA1": "tJLFSeWyXG8RWcdQ3oNtI7meD3c=",
+			"path": "github.com/gonum/blas",
+			"revision": "447542bc23b84f8daa64470951a57bb6713d15a1",
+			"revisionTime": "2016-08-16T14:59:16Z"
+		},
+		{
+			"checksumSHA1": "Hc4+U8HpN0345fLzyzrxlqYBBMs=",
+			"path": "github.com/gonum/blas/blas64",
+			"revision": "447542bc23b84f8daa64470951a57bb6713d15a1",
+			"revisionTime": "2016-08-16T14:59:16Z"
+		},
+		{
+			"checksumSHA1": "J9gEA5+8UjrU/7vNbGBeeJEQikM=",
+			"path": "github.com/gonum/blas/native",
+			"revision": "447542bc23b84f8daa64470951a57bb6713d15a1",
+			"revisionTime": "2016-08-16T14:59:16Z"
+		},
+		{
+			"checksumSHA1": "4URlS0sh4+VMLN6iDIYdt0JfpFg=",
+			"path": "github.com/gonum/blas/native/internal/math32",
+			"revision": "447542bc23b84f8daa64470951a57bb6713d15a1",
+			"revisionTime": "2016-08-16T14:59:16Z"
+		},
+		{
+			"checksumSHA1": "Z/2UmBcGPVG2JKszHGwoS4e1UsE=",
+			"path": "github.com/gonum/floats",
+			"revision": "e7dfbda930c8a40d6d1ba9107762aae3e6e47591",
+			"revisionTime": "2016-08-16T14:59:33Z"
+		},
+		{
+			"checksumSHA1": "h/+jeqFoK3+M/w78TjeawkAm5fA=",
+			"path": "github.com/gonum/graph",
+			"revision": "25f73999dc5832dd140f1a2ba9c978821cf781de",
+			"revisionTime": "2016-08-26T03:04:41Z"
+		},
+		{
+			"checksumSHA1": "wnIy/cLqcUg38qo06+gYhgkc8a8=",
+			"path": "github.com/gonum/graph/internal/linear",
+			"revision": "25f73999dc5832dd140f1a2ba9c978821cf781de",
+			"revisionTime": "2016-08-26T03:04:41Z"
+		},
+		{
+			"checksumSHA1": "+4l32aTHk19d45GgRnEQIYGf1jg=",
+			"path": "github.com/gonum/graph/internal/ordered",
+			"revision": "25f73999dc5832dd140f1a2ba9c978821cf781de",
+			"revisionTime": "2016-08-26T03:04:41Z"
+		},
+		{
+			"checksumSHA1": "7ZjtudX/0TIbyiPrObr8ueLNmWs=",
+			"path": "github.com/gonum/graph/internal/set",
+			"revision": "25f73999dc5832dd140f1a2ba9c978821cf781de",
+			"revisionTime": "2016-08-26T03:04:41Z"
+		},
+		{
+			"checksumSHA1": "HJanwtWr021onreydJuICxQV8gY=",
+			"path": "github.com/gonum/graph/simple",
+			"revision": "25f73999dc5832dd140f1a2ba9c978821cf781de",
+			"revisionTime": "2016-08-26T03:04:41Z"
+		},
+		{
+			"checksumSHA1": "znVxgFpujvQ75PtAHhnTzb+fJqs=",
+			"path": "github.com/gonum/graph/topo",
+			"revision": "25f73999dc5832dd140f1a2ba9c978821cf781de",
+			"revisionTime": "2016-08-26T03:04:41Z"
+		},
+		{
+			"checksumSHA1": "IS99N7KAaHzX5E3M/5SPFTTxYJw=",
+			"path": "github.com/gonum/graph/traverse",
+			"revision": "25f73999dc5832dd140f1a2ba9c978821cf781de",
+			"revisionTime": "2016-08-26T03:04:41Z"
+		},
+		{
+			"checksumSHA1": "c9Iryr2u6jMi4TlwBHfLxS1vnYc=",
+			"path": "github.com/gonum/internal/asm",
+			"revision": "495c8ab446bf60264be32be6973302faac6a5695",
+			"revisionTime": "2016-08-16T14:40:57Z"
+		},
+		{
+			"checksumSHA1": "xcwdCH/tPUf6GmZQHOPeDNYkL4Y=",
+			"path": "github.com/gonum/lapack",
+			"revision": "40f76d0b35097e901c364cf0c2e29d25a6a1a3e0",
+			"revisionTime": "2016-09-12T05:00:08Z"
+		},
+		{
+			"checksumSHA1": "5nfnxhi2A2qqFQit5sKqj+O7Ln8=",
+			"path": "github.com/gonum/lapack/lapack64",
+			"revision": "40f76d0b35097e901c364cf0c2e29d25a6a1a3e0",
+			"revisionTime": "2016-09-12T05:00:08Z"
+		},
+		{
+			"checksumSHA1": "MHOn2WHxSNJ6fHm6CZpuy4py/n8=",
+			"path": "github.com/gonum/lapack/native",
+			"revision": "40f76d0b35097e901c364cf0c2e29d25a6a1a3e0",
+			"revisionTime": "2016-09-12T05:00:08Z"
+		},
+		{
+			"checksumSHA1": "Kc/zUGRoA9S4HyhXvEHM7ye12d0=",
+			"path": "github.com/gonum/matrix",
+			"revision": "86f90ee5b1d91b824e46ad80e7595ecab8d618ac",
+			"revisionTime": "2016-08-30T23:41:49Z"
+		},
+		{
+			"checksumSHA1": "H7122XPBAFlB+jinp1cfzC1PwIA=",
+			"path": "github.com/gonum/matrix/mat64",
+			"revision": "86f90ee5b1d91b824e46ad80e7595ecab8d618ac",
+			"revisionTime": "2016-08-30T23:41:49Z"
+		},
+		{
+			"checksumSHA1": "nD89PLkMqA5CakR8SoDuj3iQz1M=",
+			"path": "golang.org/x/tools/container/intsets",
+			"revision": "f1a397bba50dee815e8c73f3ec94ffc0e8df1a09",
+			"revisionTime": "2016-09-12T22:56:01Z"
+		}
+	],
+	"rootPath": "github.com/VladimirStarostenkov/netting_chaincode"
+}
