@@ -1,28 +1,29 @@
 package main
 
 import (
-	"fmt"
-	"strconv"
-	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"errors"
+	"fmt"
 	"github.com/VladimirStarostenkov/netting"
+	"github.com/hyperledger/fabric/core/chaincode/shim"
+	"strconv"
 )
 
 const storeKey string = "NettingTable"
+const adminRole string = "admin"
 
-var invokes map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) =
-	map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) {
-		"AddClaim":(smartContract).invoke_AddClaim,
-		"AddCounterParty":(smartContract).invoke_AddCounterParty,
-		"RunNetting":(smartContract).invoke_RunNetting,
-		"Clear":(smartContract).invoke_Clear,
+var testMode bool = false
+
+var invokes map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) = map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error){
+	"AddClaim":        (smartContract).invoke_AddClaim,
+	"AddCounterParty": (smartContract).invoke_AddCounterParty,
+	"RunNetting":      (smartContract).invoke_RunNetting,
+	"Clear":           (smartContract).invoke_Clear,
 }
 
-var queries map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) =
-	map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) {
-		"Stats":(smartContract).query_Stats,
-		"Graph":(smartContract).query_Graph,
-		"Claims":(smartContract).query_Claims,
+var queries map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error) = map[string]func(smartContract, shim.ChaincodeStubInterface, []string) ([]byte, error){
+	"Stats":  (smartContract).query_Stats,
+	"Graph":  (smartContract).query_Graph,
+	"Claims": (smartContract).query_Claims,
 }
 
 type smartContract struct {
@@ -30,6 +31,14 @@ type smartContract struct {
 
 func initSmartContract(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("init called with args: %s\n", args)
+
+	if (len(args) > 0) && (args[0] == "testMode") {
+		testMode = true
+	}
+
+	if err := verifyCallerRole(stub, adminRole); err != nil {
+		return nil, err
+	}
 
 	nettingTable := netting.NettingTable{}
 	nettingTable.Init()
@@ -39,6 +48,7 @@ func initSmartContract(stub shim.ChaincodeStubInterface, args []string) ([]byte,
 	}
 	return nil, nil
 }
+
 // args: From int, To int, Value float
 func (smartContract) invoke_AddClaim(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	message := fmt.Sprintf("invokeAddClaim called with args: %s\n", args)
@@ -74,6 +84,10 @@ func (smartContract) invoke_AddClaim(stub shim.ChaincodeStubInterface, args []st
 	nettingTable, err := load(stub)
 	checkCriticalError(err)
 
+	if err := verifyCallerCompany(stub, strconv.Itoa(from)); err != nil {
+		return nil, err
+	}
+
 	nettingTable.AddClaim(from, to, value)
 
 	// Save new data
@@ -82,9 +96,14 @@ func (smartContract) invoke_AddClaim(stub shim.ChaincodeStubInterface, args []st
 
 	return nil, nil
 }
+
 // args: -
 func (smartContract) invoke_AddCounterParty(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("invokeAddNode called with args: %s\n", args)
+
+	if err := verifyCallerRole(stub, adminRole); err != nil {
+		return nil, err
+	}
 
 	// Load existing data
 	nettingTable, err := load(stub)
@@ -98,9 +117,14 @@ func (smartContract) invoke_AddCounterParty(stub shim.ChaincodeStubInterface, ar
 
 	return nil, nil
 }
+
 // args: -
 func (smartContract) invoke_RunNetting(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("invokeRunNetting called with args: %s\n", args)
+
+	if err := verifyCallerRole(stub, adminRole); err != nil {
+		return nil, err
+	}
 
 	// Load existing data
 	nettingTable, err := load(stub)
@@ -115,10 +139,15 @@ func (smartContract) invoke_RunNetting(stub shim.ChaincodeStubInterface, args []
 
 	return nil, nil
 }
+
 // args: -
 func (smartContract) invoke_Clear(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	if err := verifyCallerRole(stub, adminRole); err != nil {
+		return nil, err
+	}
 	return initSmartContract(stub, args)
 }
+
 // args: -
 func (smartContract) query_Stats(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("queryStats called with args: %s\n", args)
@@ -129,9 +158,14 @@ func (smartContract) query_Stats(stub shim.ChaincodeStubInterface, args []string
 
 	return nettingTable.GetStats(), nil
 }
+
 // args: -
 func (smartContract) query_Graph(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	log.Debugf("queryGraph called with args: %s\n", args)
+
+	if err := verifyCallerRole(stub, adminRole); err != nil {
+		return nil, err
+	}
 
 	// Load existing data
 	nettingTable, err := load(stub)
@@ -145,6 +179,7 @@ func (smartContract) query_Graph(stub shim.ChaincodeStubInterface, args []string
 
 	return bts, nil
 }
+
 // args: CounterPartyId int
 func (smartContract) query_Claims(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	message := fmt.Sprintf("queryClaims called with args: %s\n", args)
@@ -153,6 +188,10 @@ func (smartContract) query_Claims(stub shim.ChaincodeStubInterface, args []strin
 	if len(args) < 1 {
 		log.Errorf(message)
 		return nil, errors.New(message)
+	}
+
+	if err := verifyCallerCompany(stub, args[0]); err != nil {
+		return nil, err
 	}
 
 	counterPartyId, err := strconv.Atoi(args[0])
@@ -168,7 +207,7 @@ func (smartContract) query_Claims(stub shim.ChaincodeStubInterface, args []strin
 	return nettingTable.GetClaims(counterPartyId), nil
 }
 
-func save(this *netting.NettingTable, stub shim.ChaincodeStubInterface) (error) {
+func save(this *netting.NettingTable, stub shim.ChaincodeStubInterface) error {
 	log.Debugf("Saving...\n")
 
 	// Data to Bytes
